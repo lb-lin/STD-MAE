@@ -4,7 +4,7 @@ import random
 # TODO: remove it when basicts can be installed by pip
 sys.path.append(os.path.abspath(__file__ + "/../../.."))
 from easydict import EasyDict
-from basicts.losses import masked_mae
+from stdmae.losses_with_adj import masked_mae_with_aux
 
 from .stdmae_arch import Mask
 from .stdmae_runner import MaskRunner
@@ -44,6 +44,17 @@ CFG.MODEL.PARAM = {
     "decoder_depth":1,
     "spatial":True,
     "mode":"pre-train",
+    "use_graph_mask": True,
+    "aux_adj_loss": True,
+    "edge_sample_ratio": 0.5,
+    "lambda_a": 0.1,
+    "graph_walk_len": 4,
+    "graph_num_walks": 12,
+    "graph_p": 1.0,
+    "graph_q": 1.0,
+    "graph_seed": 0,
+    "mask_strategy": "graph",
+    "mask_batch_mode": "per-sample",
 
 }
 CFG.MODEL.FORWARD_FEATURES = [0]
@@ -51,7 +62,7 @@ CFG.MODEL.TARGET_FEATURES = [0]
 
 # ================= optim ================= #
 CFG.TRAIN = EasyDict()
-CFG.TRAIN.LOSS = masked_mae
+CFG.TRAIN.LOSS = masked_mae_with_aux
 CFG.TRAIN.OPTIM = EasyDict()
 CFG.TRAIN.OPTIM.TYPE = "Adam"
 CFG.TRAIN.OPTIM.PARAM= {
@@ -71,7 +82,7 @@ CFG.TRAIN.LR_SCHEDULER.PARAM= {
 CFG.TRAIN.CLIP_GRAD_PARAM = {
     "max_norm": 5.0
 }
-CFG.TRAIN.NUM_EPOCHS = 200
+CFG.TRAIN.NUM_EPOCHS = 20
 CFG.TRAIN.CKPT_SAVE_DIR = os.path.join(
     "checkpoints",
     "_".join([CFG.MODEL.NAME, str(CFG.TRAIN.NUM_EPOCHS)])

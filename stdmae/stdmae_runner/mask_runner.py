@@ -4,6 +4,8 @@ from easytorch.utils.dist import master_only
 from basicts.data.registry import SCALER_REGISTRY
 from basicts.runners import BaseTimeSeriesForecastingRunner
 
+CURRENT_MODEL_FOR_LOSS = None
+
 
 class MaskRunner(BaseTimeSeriesForecastingRunner):
     def __init__(self, cfg: dict):
@@ -63,6 +65,8 @@ class MaskRunner(BaseTimeSeriesForecastingRunner):
         history_data = self.select_input_features(history_data)
 
         # feed forward
+        global CURRENT_MODEL_FOR_LOSS
+        CURRENT_MODEL_FOR_LOSS = self.model
         reconstruction_masked_tokens, label_masked_tokens = self.model(history_data=history_data, future_data=None, batch_seen=iter_num, epoch=epoch)
 
         return reconstruction_masked_tokens, label_masked_tokens
